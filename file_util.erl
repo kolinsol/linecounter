@@ -1,18 +1,28 @@
 -module(file_util).
--export([count_lines/1, get_size/1, list_dir_recursive/1, aaa/0]).
+-export([list_dir_recursive/1]).
 
 -include("records.hrl").
-
-aaa() -> #file_info{name="ddd", size="ddd", lines="ddd"}.
-
-count_lines(FileName) ->
-    {ok, Device} = file:open(FileName, [read]),
-    do_count_lines(Device, 0).
 
 list_dir_recursive(DirName) ->
     DeepFileList = do_list_dir_recursive(DirName),
     lists:map(fun({ok, FileName}) -> FileName end,
               lists:flatten(DeepFileList)).
+
+process_file(FileName) ->
+    Size = get_size(FileName),
+    Lines = count_lines(FileName),
+    Type = get_filetype(FileName),
+    #file_info{name=FileName, size=Size, lines=Lines, type=Type}.
+
+count_lines(FileName) ->
+    {ok, Device} = file:open(FileName, [read]),
+    do_count_lines(Device, 0).
+
+get_filetype(FileName) -> 
+    case filename:extension(FileName) of
+        [] -> "no filetype";
+        FileType -> FileType
+    end.
 
 get_size(FileName) -> filelib:file_size(FileName).
 
@@ -24,7 +34,7 @@ do_list_dir_recursive(BaseName) ->
     lists:map(fun (FileName) ->
                   case filelib:is_dir(FileName) of
                       true -> do_list_dir_recursive(FileName);
-                      false -> {ok, FileName}
+                      false -> {ok, process_file(FileName)}
                   end
               end,
               ExtendedFileList).
