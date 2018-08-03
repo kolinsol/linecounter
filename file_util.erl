@@ -1,5 +1,9 @@
 -module(file_util).
--export([count_lines/1, get_size/1, list_dir_recursive/1]).
+-export([count_lines/1, get_size/1, list_dir_recursive/1, aaa/0]).
+
+-include("records.hrl").
+
+aaa() -> #file_info{name="ddd", size="ddd", lines="ddd"}.
 
 count_lines(FileName) ->
     {ok, Device} = file:open(FileName, [read]),
