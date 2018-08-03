@@ -5,23 +5,17 @@ count_lines(FileName) ->
     {ok, Device} = file:open(FileName, [read]),
     do_count_lines(Device, 0).
 
-do_count_lines(Device, Result) ->
-    case io:get_line(Device, "") of
-        eof -> file:close(Device), Result;
-        _Line -> do_count_lines(Device, Result + 1)
-    end.
-
-get_size(FileName) -> filelib:file_size(FileName).
-
 list_dir_recursive(DirName) ->
     DeepFileList = do_list_dir_recursive(DirName),
     lists:map(fun({ok, FileName}) -> FileName end,
               lists:flatten(DeepFileList)).
 
+get_size(FileName) -> filelib:file_size(FileName).
+
 do_list_dir_recursive(BaseName) ->
     {ok, FileList} = file:list_dir(BaseName),
     ExtendedFileList = lists:map(fun(FileName) ->
-                                      BaseName ++ "/" ++ FileName
+                                      add_basename(BaseName, FileName)
                                   end, FileList),
     lists:map(fun (FileName) ->
                   case filelib:is_dir(FileName) of
@@ -30,3 +24,11 @@ do_list_dir_recursive(BaseName) ->
                   end
               end,
               ExtendedFileList).
+
+do_count_lines(Device, Result) ->
+    case io:get_line(Device, "") of
+        eof -> file:close(Device), Result;
+        _Line -> do_count_lines(Device, Result + 1)
+    end.
+
+add_basename(BaseName, FileName) -> BaseName ++ "/" ++ FileName.
