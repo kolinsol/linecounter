@@ -1,7 +1,11 @@
 -module(line_server).
 -behaviour(gen_server).
 
--export([start_link/1, start_link/0, stop/0]).
+%% DEBUG
+-export([state/0]).
+
+-export([start_link/1, start_link/0, stop/0,
+         change_dir/1]).
 
 -export([init/1, handle_call/3, handle_cast/2,
          handle_info/2, terminate/2, code_change/3]).
@@ -20,10 +24,21 @@ start_link() ->
 stop() ->
     gen_server:cast(?SERVER, stop).
 
+change_dir(NewDir) ->
+    gen_server:cast(?SERVER, {change_dir, NewDir}).
+
+%% DEBUG
+state() ->
+    gen_server:call(?SERVER, state).
+
 init([Dir]) -> {ok, #state{dir_name=Dir}}.
 
-handle_call(_Msg, _From, State) -> {ok, State}.
+%% DEBUG
+handle_call(state, _From, State) ->
+    {reply, State, State}.
 
+handle_cast({change_dir, NewDir}, State) ->
+    {noreply, State#state{dir_name=NewDir}};
 handle_cast(stop, State) ->
     {stop, normal, State}.
 
