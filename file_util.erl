@@ -29,8 +29,8 @@ get_size(FileName) -> filelib:file_size(FileName).
 do_list_dir_recursive(BaseName) ->
     {ok, FileList} = file:list_dir(BaseName),
     ExtendedFileList = lists:map(fun(FileName) ->
-                                      add_basename(BaseName, FileName)
-                                  end, FileList),
+                                     add_basename(BaseName, FileName)
+                                 end, FileList),
     lists:map(fun (FileName) ->
                   case filelib:is_dir(FileName) of
                       true -> do_list_dir_recursive(FileName);
