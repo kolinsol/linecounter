@@ -1,4 +1,4 @@
--module(line_server).
+-module(lc_server).
 -behaviour(gen_server).
 
 %% DEBUG
