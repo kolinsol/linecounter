@@ -52,10 +52,10 @@ handle_cast(_Msg, State) ->
     {noreply, State, TimeLeft}.
 
 handle_info(timeout, State) ->
-    DirName = State#state.dir_name,
-    io:format("refreshing dir ~p~n", [DirName]),
+    Now = calendar:local_time(),
+    NewStartTime = calendar:datetime_to_gregorian_seconds(Now),
     Timeout = State#state.refresh_interval,
-    {noreply, State, Timeout}.
+    {noreply, State#state{start_time = NewStartTime}, time_left(NewStartTime, Timeout)}.
 
 terminate(_Reason, _State) ->
     lc_dir_store:delete(self()),
