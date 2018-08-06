@@ -2,7 +2,7 @@
 -behaviour(gen_server).
 
 %% DEBUG
--export([state/0]).
+-export([state/0, crash/0]).
 
 -export([start_link/1, start_link/0, stop/0,
          change_dir/1]).
@@ -31,11 +31,20 @@ change_dir(NewDir) ->
 state() ->
     gen_server:call(?SERVER, state).
 
+%% DEBUG
+crash() ->
+    gen_server:cast(?SERVER, crash).
+
 init([Dir]) -> {ok, #state{dir_name=Dir}}.
 
 %% DEBUG
 handle_call(state, _From, State) ->
     {reply, State, State}.
+
+%% DEBUG
+handle_cast(crash, State) ->
+    exit(crash),
+    {ok, State};
 
 handle_cast({change_dir, NewDir}, State) ->
     {noreply, State#state{dir_name=NewDir}};
