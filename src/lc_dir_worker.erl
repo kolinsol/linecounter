@@ -10,7 +10,7 @@
 -define(SERVER, ?MODULE).
 -define(DEFAULT_REFRESH_INTERVAL, 60 * 1000).
 
--record(state, {refresh_interval, dir_name}).
+-record(state, {dir_name, refresh_interval, start_time}).
 
 start_link(DirName, RefreshInterval) ->
     gen_server:start_link(?MODULE, [DirName, RefreshInterval], []).
@@ -21,21 +21,41 @@ create(DirName, RefreshInterval) ->
 create(DirName) ->
     create(DirName, ?DEFAULT_REFRESH_INTERVAL).
 
-init([RefreshInterval]) ->
-    {ok, #state{refresh_interval = RefreshInterval}, RefreshInterval}.
+init([DirName, RefreshInterval]) ->
+    Now = calendar:local_time(),
+    StartTime = calendar:datetime_to_gregorian_seconds(Now),
+    {ok,
+     #state{dir_name = DirName,
+                refresh_interval = RefreshInterval,
+                start_time = StartTime },
+     time_left(StartTime, RefreshInterval)}.
+
+time_left(_StartTime, infinity) -> infinity;
+time_left(StartTime, LeaseTime) ->
+    Now = calendar:local_time(),
+    CurrentTime = calendar:datetime_to_gregorian_seconds(Now),
+    TimeElapsed = CurrentTime - StartTime,
+    case LeaseTime - TimeElapsed of
+        Interval when Interval =< 0 -> 0;
+        Interval -> Interval * 1000
+    end.
 
 handle_call(_Msg, _From, State) ->
+	#state{refresh_interval = RefreshInterval, start_time = StartTime} = State,
+    TimeLeft = time_left(StartTime, RefreshInterval),
     Reply = ok,
-    {reply, Reply, State}.
+    {reply, Reply, State, TimeLeft}.
 
 handle_cast(_Msg, State) ->
-    {noreply, State}.
+	#state{refresh_interval = RefreshInterval, start_time = StartTime} = State,
+    TimeLeft = time_left(StartTime, RefreshInterval),
+    {noreply, State, TimeLeft}.
 
 handle_info(timeout, State) ->
     DirName = State#state.dir_name,
     io:format("refreshing dir ~p~n", [DirName]),
     Timeout = State#state.refresh_interval,
-    {ok, State, Timeout}.
+    {noreply, State, Timeout}.
 
 terminate(_Reason, _State) ->
     lc_dir_store:delete(self()),
