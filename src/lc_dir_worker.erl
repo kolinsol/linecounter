@@ -16,7 +16,7 @@ start_link(DirName, RefreshInterval) ->
     gen_server:start_link(?MODULE, [DirName, RefreshInterval], []).
 
 create(DirName, RefreshInterval) ->
-    sc_sup:start_child(DirName, RefreshInterval).
+    lc_dir_sup:start_child(DirName, RefreshInterval).
 
 create(DirName) ->
     create(DirName, ?DEFAULT_REFRESH_INTERVAL).

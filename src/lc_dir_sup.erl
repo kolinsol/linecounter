@@ -11,8 +11,8 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
-start_child(DirName, CheckInterval) ->
-    supervisor:start_child(?SERVER, [DirName, CheckInterval]).
+start_child(DirName, RefreshInterval) ->
+    supervisor:start_child(?SERVER, [DirName, RefreshInterval]).
 
 init([]) ->
     Element = {lc_dir_worker, {lc_dir_worker, start_link, []},
