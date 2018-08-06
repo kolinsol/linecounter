@@ -1,4 +1,4 @@
--module(sc_element).
+-module(lc_dir_worker).
 
 -behaviour(gen_server).
 

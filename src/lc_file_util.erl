@@ -1,4 +1,4 @@
--module(file_util).
+-module(lc_file_util).
 -export([list_dir_recursive/1]).
 
 -include("../include/records.hrl").
