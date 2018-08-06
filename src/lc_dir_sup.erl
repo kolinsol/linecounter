@@ -2,7 +2,7 @@
 
 -behaviour(supervisor).
 
--export([start_link/0, start_child/1]).
+-export([start_link/0, start_child/2]).
 
 -export([init/1]).
 
@@ -11,8 +11,8 @@
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
-start_child(DirName) ->
-    supervisor:start_child(?SERVER, [DirName]).
+start_child(DirName, CheckInterval) ->
+    supervisor:start_child(?SERVER, [DirName, CheckInterval]).
 
 init([]) ->
     Element = {lc_dir_worker, {lc_dir_worker, start_link, []},
