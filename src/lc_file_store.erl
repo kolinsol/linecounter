@@ -11,6 +11,13 @@
                 total_size = 0,
                 total_lines = 9}).
 
+-export([start_link/0]).
+
+-define(SERVER, ?MODULE).
+
+start_link() ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
 init([]) -> {ok, #state{}}.
 
 handle_call(_Msg, _From, State) ->

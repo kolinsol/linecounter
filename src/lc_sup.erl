@@ -14,8 +14,8 @@ start_link() ->
 init([]) ->
     DirSup = {lc_dir_sup, {lc_dir_sup, start_link, []},
               permanent, 2000, supervisor, [lc_dir_sup]},
-    Server = {lc_server, {lc_server, start_link, []},
-              permanent, 2000, worker, [lc_server]},
-    Children = [Server, DirSup],
+    FileStore = {lc_file_store, {lc_file_store, start_link, []},
+              permanent, 2000, worker, [lc_file_store]},
+    Children = [FileStore, DirSup],
     RestartStrategy = {one_for_one, 4, 3600},
     {ok, {RestartStrategy, Children}}.
