@@ -5,7 +5,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _StartArgs) ->
-    lc_store:init(),
+    lc_dir_store:init(),
     case lc_sup:start_link() of
         {ok, Pid} ->
             {ok, Pid};

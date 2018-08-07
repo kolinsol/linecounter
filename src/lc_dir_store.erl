@@ -1,4 +1,4 @@
--module(lc_store).
+-module(lc_dir_store).
 
 -export([init/0, insert/2,
          delete/1, lookup/1]).

@@ -10,7 +10,8 @@
 -define(SERVER, ?MODULE).
 -define(DEFAULT_REFRESH_INTERVAL, 60 * 1000).
 
--record(state, {dir_name, refresh_interval, start_time}).
+-record(state, {dir_name, refresh_interval, start_time,
+                inner_dirs = [], inner_files = []}).
 
 start_link(DirName, RefreshInterval) ->
     gen_server:start_link(?MODULE, [DirName, RefreshInterval], []).
@@ -24,10 +25,13 @@ create(DirName) ->
 init([DirName, RefreshInterval]) ->
     Now = calendar:local_time(),
     StartTime = calendar:datetime_to_gregorian_seconds(Now),
+    {InnerFileList, InnerDirList} = lc_file_util:categorize(DirName),
     {ok,
      #state{dir_name = DirName,
-                refresh_interval = RefreshInterval,
-                start_time = StartTime },
+            inner_dirs = InnerDirList,
+            inner_files = InnerFileList,
+            refresh_interval = RefreshInterval,
+            start_time = StartTime},
      time_left(StartTime, RefreshInterval)}.
 
 time_left(_StartTime, infinity) -> infinity;
