@@ -28,6 +28,7 @@ init([DirName, RefreshInterval]) ->
     {InnerFileList, InnerDirList} = lc_file_util:categorize(DirName),
     ProcessedFiles = lists:map(fun lc_file_util:process_file/1,
                                InnerFileList),
+    gen_server:cast(self(), {spawn_dirs, InnerDirList}),
     {ok,
      #state{dir_name = DirName,
             inner_dirs = InnerDirList,
@@ -52,7 +53,12 @@ handle_call(_Msg, _From, State) ->
     Reply = ok,
     {reply, Reply, State, TimeLeft}.
 
-handle_cast(_Msg, State) ->
+handle_cast({spawn_dirs, Dirs}, State) ->
+    lists:foreach(
+        fun(Dir) ->
+            lc_dir_sup:start_child(Dir, ?DEFAULT_REFRESH_INTERVAL)
+        end, Dirs
+    ),
 	#state{refresh_interval = RefreshInterval, start_time = StartTime} = State,
     TimeLeft = time_left(StartTime, RefreshInterval),
     {noreply, State, TimeLeft}.
