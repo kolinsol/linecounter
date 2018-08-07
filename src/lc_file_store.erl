@@ -17,11 +17,11 @@ handle_call(_Msg, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
 
-handle_cast({add_file, File}, State) ->
-    File = #file_info{size = Size, lines = Lines},
-    State = #state{files = CurrentFiles,
+handle_cast({add_file,
+             File = #file_info{size = Size, lines = Lines}},
+            #state{files = CurrentFiles,
                    total_size = CurrentSize,
-                   total_lines = CurrentLines},
+                   total_lines = CurrentLines}) ->
     {noreply, #state{files = [File|CurrentFiles],
                      total_size = CurrentSize + Size,
                      total_lines = CurrentLines + Lines}}.
