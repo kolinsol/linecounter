@@ -26,10 +26,12 @@ init([DirName, RefreshInterval]) ->
     Now = calendar:local_time(),
     StartTime = calendar:datetime_to_gregorian_seconds(Now),
     {InnerFileList, InnerDirList} = lc_file_util:categorize(DirName),
+    ProcessedFiles = lists:map(fun lc_file_util:process_file/1,
+                               InnerFileList),
     {ok,
      #state{dir_name = DirName,
             inner_dirs = InnerDirList,
-            inner_files = InnerFileList,
+            inner_files = ProcessedFiles,
             refresh_interval = RefreshInterval,
             start_time = StartTime},
      time_left(StartTime, RefreshInterval)}.

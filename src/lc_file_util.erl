@@ -1,5 +1,5 @@
 -module(lc_file_util).
--export([list_dir_recursive/1, categorize/1]).
+-export([list_dir_recursive/1, categorize/1, process_file/1]).
 
 -include("../include/records.hrl").
 
@@ -24,7 +24,12 @@ process_file(FileName) ->
     Size = get_size(FileName),
     Lines = count_lines(FileName),
     Type = get_filetype(FileName),
-    #file_info{name=FileName, size=Size, lines=Lines, type=Type}.
+    LastModified = last_modified(FileName),
+    #file_info{name=FileName,
+               size=Size,
+               lines=Lines,
+               type=Type,
+               last_modified=LastModified}.
 
 count_lines(FileName) ->
     {ok, Device} = file:open(FileName, [read]),
@@ -37,6 +42,8 @@ get_filetype(FileName) ->
     end.
 
 get_size(FileName) -> filelib:file_size(FileName).
+
+last_modified(FileName) -> filelib:last_modified(FileName).
 
 do_list_dir_recursive(BaseName) ->
     {ok, FileList} = file:list_dir(BaseName),
