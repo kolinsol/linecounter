@@ -9,7 +9,8 @@
 
 -record(state, {files = [],
                 total_size = 0,
-                total_lines = 9}).
+                total_line_number = 0,
+                total_line_lengths = []}).
 
 -export([start_link/0]).
 
@@ -25,13 +26,17 @@ handle_call(_Msg, _From, State) ->
     {reply, Reply, State}.
 
 handle_cast({add_file,
-             File = #file_info{size = Size, lines = Lines}},
+             File = #file_info{size = Size,
+                               line_number = FileLineNumber,
+                               line_lengths = FileLineLengths}},
             #state{files = CurrentFiles,
                    total_size = CurrentSize,
-                   total_lines = CurrentLines}) ->
+                   total_line_number = CurrentLineNumber,
+                   total_line_lengths = CurrentLineLengths}) ->
     {noreply, #state{files = [File|CurrentFiles],
                      total_size = CurrentSize + Size,
-                     total_lines = CurrentLines + Lines}}.
+                     total_line_number = CurrentLineNumber + FileLineNumber,
+                     total_line_lengths = CurrentLineLengths ++ FileLineLengths}}.
 
 handle_info(_Info, State) ->
     {noreply, State}.

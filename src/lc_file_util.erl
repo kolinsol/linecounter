@@ -22,18 +22,19 @@ categorize(DirName) ->
 
 process_file(FileName) ->
     Size = get_size(FileName),
-    Lines = count_lines(FileName),
+    {LineNumber, LineLengths} = process_lines(FileName),
     Type = get_filetype(FileName),
     LastModified = last_modified(FileName),
     #file_info{name=FileName,
                size=Size,
-               lines=Lines,
+               line_number=LineNumber,
+               line_lengths=LineLengths,
                type=Type,
                last_modified=LastModified}.
 
-count_lines(FileName) ->
+process_lines(FileName) ->
     {ok, Device} = file:open(FileName, [read]),
-    do_count_lines(Device, 0).
+    do_process_lines(Device, {0, []}).
 
 get_filetype(FileName) -> 
     case filename:extension(FileName) of
@@ -58,10 +59,10 @@ do_list_dir_recursive(BaseName) ->
               end,
               ExtendedFileList).
 
-do_count_lines(Device, Result) ->
+do_process_lines(Device, {LineNumber, LineLengths}) ->
     case io:get_line(Device, "") of
-        eof -> file:close(Device), Result;
-        _Line -> do_count_lines(Device, Result + 1)
+        eof -> file:close(Device), {LineNumber, LineLengths};
+        Line -> do_process_lines(Device, {LineNumber + 1, [length(Line)|LineLengths]})
     end.
 
 add_basename(BaseName, FileName) -> BaseName ++ "/" ++ FileName.
